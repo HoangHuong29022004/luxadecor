@@ -25,6 +25,10 @@ class Jwt
             }
             $user = JWTAuth::parseToken()->authenticate();
 
+            if (!$user->is_admin) {
+                return response()->json(['message' => 'Bạn không có quyền truy cập'], 403);
+            }
+            return response()->json(['message' => 'Token không hợp lệ'], 401);
         } catch (TokenExpiredException $e) {
             return response()->json(['message' => 'Token đã hết hạn'], 401);
         } catch (JWTException $e) {

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
        $user->name = "admin";
        $user->email = "admin@email.com";
        $user->password = Hash::make("123123");
+       $user->is_admin = true;
        $user->save();
     }
 }

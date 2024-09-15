@@ -138,4 +138,43 @@ class AuthController extends Controller
 
         return $refreshTokenData;
     }
+
+    //login admin
+    public function adminLogin()
+    {
+        try {
+            $credentials = request(['email', 'password']);
+            if (!$token = auth('api')->attempt($credentials)) {
+                return response()->json(['error' => 'Sai tên đăng nhập hoặc mật khẩu'], Response::HTTP_UNAUTHORIZED);
+            }
+            $user = auth('api')->user();
+            if (!$user->is_admin) {
+                return response()->json(['error' => 'Bạn không có quyền truy cập'], Response::HTTP_UNAUTHORIZED);
+            }
+            $refreshTokenData = $this->setRefreshTokenData($user);
+            $refresh_token = JWTAuth::getJWTProvider()->encode($refreshTokenData);
+            $cookie = $this->setTokenAndRefreshToken($token, $refresh_token, $user);
+            $tokenCookie = $cookie['tokenCookie'];
+            $refreshTokenCookie = $cookie['refreshTokenCookie'];
+            return $this->respondWithToken($token, $refresh_token, $user)->withCookie($tokenCookie)->withCookie($refreshTokenCookie);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Lỗi xác thực token'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Đã xảy ra lỗi trong quá trình đăng nhập'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    //logout admin
+    public function adminLogout()
+    {
+        try {
+            auth('api')->logout();
+            $cookie = Cookie::forget('access_token');
+            $refreshTokenCookie = Cookie::forget('refresh_token');
+            return response()->json(['message' => 'Successfully logged out'])->withCookie($cookie)->withCookie($refreshTokenCookie);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Lỗi xác thực token'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Đã xảy ra lỗi trong quá trình đăng xuất'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

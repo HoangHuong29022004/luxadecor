@@ -16,11 +16,13 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->tinyInteger('role')->default(1);
-            $table->tinyInteger('status')->default(1);
+            $table->tinyInteger('role')->default(1)->comment('Vai trò của người dùng');
+            $table->tinyInteger('status')->default(1)->comment('Trạng thái của người dùng');
             $table->string('password');
+            $table->boolean('is_admin')->default(false)->comment('Người dùng là admin hay không');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes()->comment('Ngày xóa mềm');
         });
     }
 

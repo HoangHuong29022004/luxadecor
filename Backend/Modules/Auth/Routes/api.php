@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Modules\Auth\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,3 +24,5 @@ Route::group([
 });
 Route::post('auth/login', [AuthController::class,'login']);
 Route::post('auth/refresh', [AuthController::class,'refresh']);
+Route::post('auth/admin/login', [AuthController::class, 'adminLogin']);
+Route::post('auth/admin/logout', [AuthController::class, 'adminLogout']);
