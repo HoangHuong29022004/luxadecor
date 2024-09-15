@@ -9,6 +9,7 @@ use Modules\Attributes\Http\Requests\UpdateAttributeRequest;
 use Modules\Attributes\Repositories\AttributeRepositoryInterface;
 use Modules\Attributes\Transformers\AttributeResource;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\QueryException;
 
 class AttributesController extends Controller
 {
@@ -32,6 +33,8 @@ class AttributesController extends Controller
                 'message' => 'Attribute created successfully',
                 'data' => new AttributeResource($attribute)
             ], Response::HTTP_CREATED);
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Attribute name already exists'], Response::HTTP_CONFLICT);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to create attribute'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -55,6 +58,8 @@ class AttributesController extends Controller
                 'message' => 'Attribute updated successfully',
                 'data' => new AttributeResource($attribute)
             ], Response::HTTP_OK);
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Attribute name already exists'], Response::HTTP_CONFLICT);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to update attribute'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
