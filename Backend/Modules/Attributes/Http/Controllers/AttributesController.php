@@ -8,6 +8,7 @@ use Modules\Attributes\Http\Requests\StoreAttributeRequest;
 use Modules\Attributes\Http\Requests\UpdateAttributeRequest;
 use Modules\Attributes\Repositories\AttributeRepositoryInterface;
 use Modules\Attributes\Transformers\AttributeResource;
+use Symfony\Component\HttpFoundation\Response;
 
 class AttributesController extends Controller
 {
@@ -25,24 +26,47 @@ class AttributesController extends Controller
 
     public function store(StoreAttributeRequest $request)
     {
-        $attribute = $this->attributeRepository->create($request->validated());
-        return new AttributeResource($attribute);
+        try {
+            $attribute = $this->attributeRepository->create($request->validated());
+            return response()->json([
+                'message' => 'Attribute created successfully',
+                'data' => new AttributeResource($attribute)
+            ], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to create attribute'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function show($id)
     {
-        return new AttributeResource($this->attributeRepository->find($id));
+        try {
+            $attribute = $this->attributeRepository->find($id);
+            return new AttributeResource($attribute);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Attribute not found'], Response::HTTP_NOT_FOUND);
+        }
     }
 
     public function update(UpdateAttributeRequest $request, $id)
     {
-        $attribute = $this->attributeRepository->update($id, $request->validated());
-        return new AttributeResource($attribute);
+        try {
+            $attribute = $this->attributeRepository->update($id, $request->validated());
+            return response()->json([
+                'message' => 'Attribute updated successfully',
+                'data' => new AttributeResource($attribute)
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to update attribute'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function destroy($id)
     {
-        $this->attributeRepository->delete($id);
-        return response()->json(null, 204);
+        try {
+            $this->attributeRepository->delete($id);
+            return response()->json(['message' => 'Attribute deleted successfully'], Response::HTTP_NO_CONTENT);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete attribute'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
