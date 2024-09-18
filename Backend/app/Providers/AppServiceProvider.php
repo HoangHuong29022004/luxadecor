@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Modules\Attributes\Repositories\AttributeRepository;
+use Modules\Attributes\Repositories\AttributeRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +13,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->bindingsRepository();
+    }
+
+    public function bindingsRepository()
+    {
+        // Attribute
+        $this->app->singleton(
+            AttributeRepositoryInterface::class,
+            AttributeRepository::class
+        );
     }
 
     /**
